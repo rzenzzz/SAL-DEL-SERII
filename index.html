@@ -6,112 +6,36 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body{
-    font-family: Arial, sans-serif;
-    background:#f5f5f5;
-    margin:0;
-    padding:20px;
-}
-.contenedor{
-    max-width:900px;
-    margin:auto;
-    background:#fff;
-    padding:25px;
-    border-radius:8px;
-    box-shadow:0 2px 10px rgba(0,0,0,.1);
-}
-.logo{text-align:center;margin-bottom:10px;}
-.logo img{max-width:220px;}
-p{color:#666;font-size:14px;text-align:center;}
-.seccion{margin-top:25px;}
-.seccion h3{border-bottom:1px solid #e0e0e0;padding-bottom:5px;}
-.fila{display:grid;grid-template-columns:1fr 1fr;gap:15px;}
-.campo{display:flex;flex-direction:column;}
-label{font-size:14px;margin-bottom:5px;}
-input{
-    padding:10px;border:1px solid #ccc;
-    border-radius:5px;font-size:14px;
-}
-input:focus{outline:none;border-color:#4CAF50;}
-.resumen{
-    background:#f0f0f0;padding:15px;
-    border-radius:5px;font-size:15px;
-}
-.boton{text-align:right;margin-top:25px;}
-button{
-    background:#25D366;color:#fff;
-    border:none;padding:12px 25px;
-    font-size:15px;border-radius:5px;
-    cursor:pointer;
-}
-button:hover{background:#1ebe5d;}
-@media(max-width:700px){
-    .fila{grid-template-columns:1fr;}
-}
+body{font-family:Arial;background:#f5f5f5;padding:20px}
+.contenedor{max-width:900px;margin:auto;background:#fff;padding:25px;border-radius:8px}
+.logo{text-align:center}
+.logo img{max-width:220px}
+.campo{margin-top:10px;display:flex;flex-direction:column}
+input{padding:10px;border:1px solid #ccc;border-radius:5px}
+button{margin-top:20px;background:#25D366;color:#fff;border:none;padding:12px;font-size:16px;border-radius:5px;cursor:pointer}
+.resumen{margin-top:15px;background:#eee;padding:10px;border-radius:5px}
 </style>
 </head>
 
 <body>
 
 <div class="contenedor">
+<div class="logo"><img src="yiyi.png"></div>
 
-<div class="logo">
-    <img src="yiyi.png" alt="SAL DEL SERI">
-</div>
-
-<p>Pedido de sacos de sal (1 saco = 25 bolsas de 1 kg)</p>
-
-<div class="seccion">
-<h3>Datos del Negocio</h3>
-
+<div class="campo"><input id="negocio" placeholder="Negocio"></div>
+<div class="campo"><input id="responsable" placeholder="Responsable"></div>
+<div class="campo"><input id="telefono" placeholder="Teléfono"></div>
+<div class="campo"><input id="direccion" placeholder="Dirección"></div>
 <div class="campo">
-<label>Nombre del Negocio *</label>
-<input type="text" id="negocio">
+<input id="sacos" type="number" min="1" placeholder="Sacos">
 </div>
 
-<div class="campo">
-<label>Responsable *</label>
-<input type="text" id="responsable">
+<div class="resumen" id="resumen">Total: $0 MXN</div>
+
+<button id="btnEnviar">Enviar por WhatsApp</button>
 </div>
 
-<div class="campo">
-<label>Teléfono *</label>
-<input type="tel" id="telefono">
-</div>
-
-<div class="campo">
-<label>Dirección del Negocio *</label>
-<input type="text" id="direccion">
-</div>
-</div>
-
-<div class="seccion">
-<h3>Pedido</h3>
-
-<div class="fila">
-<div class="campo">
-<label>Cantidad de Sacos *</label>
-<input type="number" id="sacos" min="1" oninput="calcular()">
-</div>
-
-<div class="campo">
-<label>Precio por Saco</label>
-<input type="text" value="$135 MXN" disabled>
-</div>
-</div>
-
-<div class="resumen" id="resumen">
-Total: $0 MXN
-</div>
-</div>
-
-<div class="boton">
-<button onclick="enviarWhats()">Enviar por WhatsApp</button>
-</div>
-
-</div>
-
-<!-- 🔥 FIREBASE -->
+<!-- ✅ TODO EN UN SOLO MÓDULO -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -128,90 +52,53 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-window.db = db;
-window.addDoc = addDoc;
-window.collection = collection;
-</script>
+const PRECIO = 135;
+const NUMEROS = ["5216621498544","5216622721644"];
 
-<!-- 🧠 LÓGICA -->
-<script>
-const PRECIO_SACO = 135;
+const sacosInput = document.getElementById("sacos");
+const resumen = document.getElementById("resumen");
+const boton = document.getElementById("btnEnviar");
 
-const WHATSAPP_NUMEROS = [
-  "5216621498544",
-  "5216622721644"
-];
+sacosInput.addEventListener("input",()=>{
+  const s = Number(sacosInput.value);
+  resumen.innerText = `Total: $${s>0?s*PRECIO:0} MXN`;
+});
 
-function calcular(){
-  const sacos = Number(document.getElementById("sacos").value);
-  const resumen = document.getElementById("resumen");
+boton.addEventListener("click", async ()=>{
+  const negocio = negocio.value.trim();
+  const responsable = responsable.value.trim();
+  const telefono = telefono.value.trim();
+  const direccion = direccion.value.trim();
+  const sacos = Number(sacosInput.value);
 
-  if(!sacos || sacos <= 0){
-    resumen.innerText = "Total: $0 MXN";
+  if(!negocio||!responsable||!telefono||!direccion||!sacos){
+    alert("Completa todo");
     return;
   }
 
-  resumen.innerText = `Total: $${sacos * PRECIO_SACO} MXN`;
-}
+  const total = sacos*PRECIO;
+  const fecha = new Date().toLocaleString("es-MX");
 
-function obtenerFechaHora(){
-  return new Date().toLocaleString("es-MX");
-}
-
-function enviarWhats(){
-  const negocio = document.getElementById("negocio").value.trim();
-  const responsable = document.getElementById("responsable").value.trim();
-  const telefono = document.getElementById("telefono").value.trim();
-  const direccion = document.getElementById("direccion").value.trim();
-  const sacos = Number(document.getElementById("sacos").value);
-
-  if(!negocio || !responsable || !telefono || !direccion || !sacos){
-    alert("Completa todos los campos ❌");
-    return;
-  }
-
-  if(!confirm("¿Confirmas que deseas enviar el pedido?")) return;
-
-  const total = sacos * PRECIO_SACO;
-  const bolsas = sacos * 25;
-  const fechaHora = obtenerFechaHora();
-
-  const mensaje =
-`🧂 SAL DEL SERI
-📅 ${fechaHora}
-🏪 ${negocio}
-👤 ${responsable}
-📞 ${telefono}
-📍 ${direccion}
-🧂 Sacos: ${sacos}
-🛍️ Bolsas: ${bolsas}
-💰 TOTAL: $${total} MXN`;
-
-  // 📲 WhatsApp (primero)
-  WHATSAPP_NUMEROS.forEach(n=>{
-    window.open(
-      `https://wa.me/${n}?text=${encodeURIComponent(mensaje)}`,
-      "_blank"
-    );
+  // 🔥 FIRESTORE
+  await addDoc(collection(db,"pedidos"),{
+    negocio,responsable,telefono,direccion,
+    sacos,total,fecha,estado:"pendiente"
   });
 
-  // 🔥 Firestore (después)
-  window.addDoc(
-    window.collection(window.db,"pedidos"),
-    {
-      negocio,
-      responsable,
-      telefono,
-      direccion,
-      sacos,
-      bolsas,
-      total,
-      fechaHora,
-      estado:"pendiente",
-      timestamp:new Date()
-    }
-  );
-}
+  // 📲 WHATSAPP
+  const msg = `SAL DEL SERI
+${fecha}
+${negocio}
+${responsable}
+${telefono}
+${direccion}
+Sacos: ${sacos}
+Total: $${total}`;
+
+  NUMEROS.forEach(n=>{
+    window.open(`https://wa.me/${n}?text=${encodeURIComponent(msg)}`,"_blank");
+  });
+});
 </script>
 
 </body>
