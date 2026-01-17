@@ -20,22 +20,18 @@ button{margin-top:20px;background:#25D366;color:#fff;border:none;padding:12px;fo
 <body>
 
 <div class="contenedor">
-<div class="logo"><img src="yiyi.png"></div>
+  <div class="logo"><img src="yiyi.png"></div>
 
-<div class="campo"><input id="negocio" placeholder="Negocio"></div>
-<div class="campo"><input id="responsable" placeholder="Responsable"></div>
-<div class="campo"><input id="telefono" placeholder="Teléfono"></div>
-<div class="campo"><input id="direccion" placeholder="Dirección"></div>
-<div class="campo">
-<input id="sacos" type="number" min="1" placeholder="Sacos">
+  <div class="campo"><input id="negocio" placeholder="Negocio"></div>
+  <div class="campo"><input id="responsable" placeholder="Responsable"></div>
+  <div class="campo"><input id="telefono" placeholder="Teléfono"></div>
+  <div class="campo"><input id="direccion" placeholder="Dirección"></div>
+  <div class="campo"><input id="sacos" type="number" min="1" placeholder="Sacos"></div>
+
+  <div class="resumen" id="resumen">Total: $0 MXN</div>
+  <button id="btnEnviar">Enviar por WhatsApp</button>
 </div>
 
-<div class="resumen" id="resumen">Total: $0 MXN</div>
-
-<button id="btnEnviar">Enviar por WhatsApp</button>
-</div>
-
-<!-- ✅ TODO EN UN SOLO MÓDULO -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -61,57 +57,66 @@ const boton = document.getElementById("btnEnviar");
 
 sacosInput.addEventListener("input",()=>{
   const s = Number(sacosInput.value);
-  resumen.innerText = `Total: $${s>0?s*PRECIO:0} MXN`;
+  resumen.innerText = `Total: $${s > 0 ? s * PRECIO : 0} MXN`;
 });
 
 boton.addEventListener("click", async ()=>{
-  const negocio = negocio.value.trim();
-  const responsable = responsable.value.trim();
-  const telefono = telefono.value.trim();
-  const direccion = direccion.value.trim();
+  const negocio = document.getElementById("negocio").value.trim();
+  const responsable = document.getElementById("responsable").value.trim();
+  const telefono = document.getElementById("telefono").value.trim();
+  const direccion = document.getElementById("direccion").value.trim();
   const sacos = Number(sacosInput.value);
 
-  if(!negocio||!responsable||!telefono||!direccion||!sacos){
-    alert("Completa todo");
+  if(!negocio || !responsable || !telefono || !direccion || !sacos){
+    alert("Completa todos los campos");
     return;
   }
 
-  const total = sacos*PRECIO;
+  const bolsas = sacos * 25;
+  const total = sacos * PRECIO;
   const fecha = new Date().toLocaleString("es-MX");
 
-  // 🔥 FIRESTORE
+  // 🔥 Firestore
   await addDoc(collection(db,"pedidos"),{
-    negocio,responsable,telefono,direccion,
-    sacos,total,fecha,estado:"pendiente"
+    negocio,
+    responsable,
+    telefono,
+    direccion,
+    sacos,
+    bolsas,
+    total,
+    fecha,
+    estado:"pendiente"
   });
 
-  // 📲 WHATSAPP
-  const msg = `SAL DEL SERI
-🧂 *SAL DEL SERI*
+  // 📲 WhatsApp
+  const msg = 
+`🧂 *SAL DEL SERI*
 ────────────────────
 📦 *PEDIDO*
-────────────────────
-📅 Fecha y hora: ${fechaHora}
+📅 Fecha y hora: ${fecha}
+
 🏪 Negocio: ${negocio}
 👤 Responsable: ${responsable}
 📞 Teléfono: ${telefono}
 📍 Dirección: ${direccion}
-────────────────────
+
 🧂 Sacos: ${sacos}
-🛍️ Bolsas (1 kg): ${bolsas}
+🛍️ Bolsas (1kg): ${bolsas}
 💲 Precio por saco: $135 MXN
-────────────────────
+
 💰 *TOTAL: $${total} MXN*
 ────────────────────`;
 
   NUMEROS.forEach(n=>{
-    window.open(`https://wa.me/${n}?text=${encodeURIComponent(msg)}`,"_blank");
+    window.open(`https://wa.me/${n}?text=${encodeURIComponent(msg)}`, "_blank");
   });
 });
 </script>
 
 </body>
 </html>
+
 
 
 
