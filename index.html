@@ -168,33 +168,27 @@ button:hover{
 </script>
 
 <!-- 🧠 LÓGICA -->
-<script>
+
+    <script>
 const PRECIO_SACO = 135;
-const WHATSAPP_NUMEROS = ["5216621498544","5216622721644"];
+
+const WHATSAPP_NUMEROS = [
+  "5216621498544",
+  "5216622721644"
+];
 
 function obtenerFechaHora(){
-    return new Date().toLocaleString("es-MX");
+  return new Date().toLocaleString("es-MX");
 }
+</script>
 
-document.getElementById("fechaHora").innerText =
-    "Fecha y hora de generación: " + obtenerFechaHora();
-
-function calcular(){
-    let sacos = document.getElementById("sacos").value || 0;
-    let total = sacos * PRECIO_SACO;
-
-    document.getElementById("resumen").innerHTML =
-        `Sacos: ${sacos}<br>
-         Bolsas: ${sacos * 25}<br>
-         Total: $${total} MXN`;
-}
-
+<script>
 async function enviarWhats(){
-    let negocio = negocio.value.trim();
-    let responsable = responsable.value.trim();
-    let telefono = telefono.value.trim();
-    let direccion = direccion.value.trim();
-    let sacos = sacos.value;
+    const negocio = document.getElementById("negocio").value.trim();
+    const responsable = document.getElementById("responsable").value.trim();
+    const telefono = document.getElementById("telefono").value.trim();
+    const direccion = document.getElementById("direccion").value.trim();
+    const sacos = document.getElementById("sacos").value;
 
     if(!negocio || !responsable || !telefono || !direccion || !sacos){
         alert("Completa todos los campos ❌");
@@ -203,18 +197,32 @@ async function enviarWhats(){
 
     if(!confirm("¿Confirmas que deseas enviar el pedido?")) return;
 
-    let total = sacos * PRECIO_SACO;
-    let bolsas = sacos * 25;
-    let fechaHora = obtenerFechaHora();
+    const total = sacos * PRECIO_SACO;
+    const bolsas = sacos * 25;
+    const fechaHora = obtenerFechaHora();
 
-    await addDoc(collection(db,"pedidos"),{
-        negocio,responsable,telefono,direccion,
-        sacos:Number(sacos),bolsas,total,
-        fechaHora,estado:"pendiente",
-        timestamp:new Date()
-    });
+    // 🔥 Guardar en Firestore
+    try{
+        await addDoc(collection(db,"pedidos"),{
+            negocio,
+            responsable,
+            telefono,
+            direccion,
+            sacos: Number(sacos),
+            bolsas,
+            total,
+            fechaHora,
+            estado: "pendiente",
+            timestamp: new Date()
+        });
+    }catch(error){
+        alert("Error al guardar el pedido ❌");
+        console.error(error);
+        return;
+    }
 
-    let mensaje =
+    // 📲 Mensaje WhatsApp
+    const mensaje =
 `🧂 SAL DEL SERI
 📅 ${fechaHora}
 🏪 ${negocio}
@@ -226,13 +234,15 @@ async function enviarWhats(){
 💰 TOTAL: $${total} MXN`;
 
     WHATSAPP_NUMEROS.forEach(n=>{
-        window.open(`https://wa.me/${n}?text=${encodeURIComponent(mensaje)}`,"_blank");
+        const url = `https://wa.me/${n}?text=${encodeURIComponent(mensaje)}`;
+        window.open(url, "_blank");
     });
 }
 </script>
 
 </body>
 </html>
+
 
 
 
