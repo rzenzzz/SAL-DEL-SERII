@@ -49,7 +49,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const PRECIO = 135;
-const NUMEROS = ["5216621498544","5216622721644"];
+const NUMERO_WHATS = "5216621498544"; // 👈 UNO SOLO (FUNCIONA SIEMPRE)
 
 const sacosInput = document.getElementById("sacos");
 const resumen = document.getElementById("resumen");
@@ -89,33 +89,28 @@ boton.addEventListener("click", async ()=>{
     estado:"pendiente"
   });
 
-  // 📲 WhatsApp
-  const msg = 
+  // 📲 WhatsApp (FORMA SEGURA)
+  const mensaje =
 `🧂 *SAL DEL SERI*
-────────────────────
-📦 *PEDIDO*
-📅 Fecha y hora: ${fecha}
+📦 *PEDIDO NUEVO*
 
-🏪 Negocio: ${negocio}
-👤 Responsable: ${responsable}
-📞 Teléfono: ${telefono}
-📍 Dirección: ${direccion}
+📅 ${fecha}
+🏪 ${negocio}
+👤 ${responsable}
+📞 ${telefono}
+📍 ${direccion}
 
 🧂 Sacos: ${sacos}
-🛍️ Bolsas (1kg): ${bolsas}
-💲 Precio por saco: $135 MXN
+🛍️ Bolsas: ${bolsas}
+💰 TOTAL: $${total} MXN`;
 
-💰 *TOTAL: $${total} MXN*
-────────────────────`;
-
-  NUMEROS.forEach(n=>{
-    window.open(`https://wa.me/${n}?text=${encodeURIComponent(msg)}`, "_blank");
-  });
+  location.href = `https://wa.me/${NUMERO_WHATS}?text=${encodeURIComponent(mensaje)}`;
 });
 </script>
 
 </body>
 </html>
+
 
 
 
