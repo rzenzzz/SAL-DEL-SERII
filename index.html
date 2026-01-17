@@ -28,52 +28,87 @@ p{color:#666;font-size:14px;text-align:center;}
 .fila{display:grid;grid-template-columns:1fr 1fr;gap:15px;}
 .campo{display:flex;flex-direction:column;}
 label{font-size:14px;margin-bottom:5px;}
-input{padding:10px;border:1px solid #ccc;border-radius:5px;font-size:14px;}
-.resumen{background:#f0f0f0;padding:15px;border-radius:5px;font-size:15px;}
-.fecha{font-size:13px;color:#333;margin-top:10px;}
+input{
+    padding:10px;border:1px solid #ccc;
+    border-radius:5px;font-size:14px;
+}
+input:focus{outline:none;border-color:#4CAF50;}
+.resumen{
+    background:#f0f0f0;padding:15px;
+    border-radius:5px;font-size:15px;
+}
 .boton{text-align:right;margin-top:25px;}
-button{background:#25D366;color:#fff;border:none;padding:12px 25px;font-size:15px;border-radius:5px;cursor:pointer;}
+button{
+    background:#25D366;color:#fff;
+    border:none;padding:12px 25px;
+    font-size:15px;border-radius:5px;
+    cursor:pointer;
+}
 button:hover{background:#1ebe5d;}
-@media(max-width:700px){.fila{grid-template-columns:1fr;}}
+@media(max-width:700px){
+    .fila{grid-template-columns:1fr;}
+}
 </style>
 </head>
 
 <body>
 
 <div class="contenedor">
-    <div class="logo">
-        <img src="yiyi.png" alt="SAL DEL SERI">
-    </div>
 
-    <p>Pedido de sacos de sal (1 saco = 25 bolsas de 1 kg)</p>
-    <div class="fecha" id="fechaHora"></div>
+<div class="logo">
+    <img src="yiyi.png" alt="SAL DEL SERI">
+</div>
 
-    <div class="seccion">
-        <h3>Datos del Negocio</h3>
-        <div class="campo"><label>Nombre del Negocio *</label><input type="text" id="negocio"></div>
-        <div class="campo"><label>Responsable *</label><input type="text" id="responsable"></div>
-        <div class="campo"><label>Teléfono *</label><input type="tel" id="telefono"></div>
-        <div class="campo"><label>Dirección del Negocio *</label><input type="text" id="direccion"></div>
-    </div>
+<p>Pedido de sacos de sal (1 saco = 25 bolsas de 1 kg)</p>
 
-    <div class="seccion">
-        <h3>Pedido</h3>
-        <div class="fila">
-            <div class="campo">
-                <label>Cantidad de Sacos *</label>
-                <input type="number" id="sacos" min="1" oninput="calcular()">
-            </div>
-            <div class="campo">
-                <label>Precio por Saco</label>
-                <input type="text" value="$135 MXN" disabled>
-            </div>
-        </div>
-        <div class="resumen" id="resumen">Total: $0 MXN</div>
-    </div>
+<div class="seccion">
+<h3>Datos del Negocio</h3>
 
-    <div class="boton">
-        <button onclick="enviarWhats()">Enviar por WhatsApp</button>
-    </div>
+<div class="campo">
+<label>Nombre del Negocio *</label>
+<input type="text" id="negocio">
+</div>
+
+<div class="campo">
+<label>Responsable *</label>
+<input type="text" id="responsable">
+</div>
+
+<div class="campo">
+<label>Teléfono *</label>
+<input type="tel" id="telefono">
+</div>
+
+<div class="campo">
+<label>Dirección del Negocio *</label>
+<input type="text" id="direccion">
+</div>
+</div>
+
+<div class="seccion">
+<h3>Pedido</h3>
+
+<div class="fila">
+<div class="campo">
+<label>Cantidad de Sacos *</label>
+<input type="number" id="sacos" min="1" oninput="calcular()">
+</div>
+
+<div class="campo">
+<label>Precio por Saco</label>
+<input type="text" value="$135 MXN" disabled>
+</div>
+</div>
+
+<div class="resumen" id="resumen">
+Total: $0 MXN
+</div>
+</div>
+
+<div class="boton">
+<button onclick="enviarWhats()">Enviar por WhatsApp</button>
+</div>
+
 </div>
 
 <!-- 🔥 FIREBASE -->
@@ -101,30 +136,38 @@ window.collection = collection;
 <!-- 🧠 LÓGICA -->
 <script>
 const PRECIO_SACO = 135;
-const WHATSAPP_NUMEROS = ["5216621498544","5216622721644"];
+
+const WHATSAPP_NUMEROS = [
+  "5216621498544",
+  "5216622721644"
+];
+
+function calcular(){
+  const sacos = Number(document.getElementById("sacos").value);
+  const resumen = document.getElementById("resumen");
+
+  if(!sacos || sacos <= 0){
+    resumen.innerText = "Total: $0 MXN";
+    return;
+  }
+
+  resumen.innerText = `Total: $${sacos * PRECIO_SACO} MXN`;
+}
 
 function obtenerFechaHora(){
   return new Date().toLocaleString("es-MX");
 }
 
-document.getElementById("fechaHora").innerText =
-  "Fecha y hora: " + obtenerFechaHora();
-
-function calcular(){
-  const sacos = document.getElementById("sacos").value;
-  document.getElementById("resumen").innerText =
-    sacos ? `Total: $${sacos * PRECIO_SACO} MXN` : "Total: $0 MXN";
-}
-
-async function enviarWhats(){
-  const negocio = negocio.value.trim();
-  const responsable = responsable.value.trim();
-  const telefono = telefono.value.trim();
-  const direccion = direccion.value.trim();
-  const sacos = document.getElementById("sacos").value;
+function enviarWhats(){
+  const negocio = document.getElementById("negocio").value.trim();
+  const responsable = document.getElementById("responsable").value.trim();
+  const telefono = document.getElementById("telefono").value.trim();
+  const direccion = document.getElementById("direccion").value.trim();
+  const sacos = Number(document.getElementById("sacos").value);
 
   if(!negocio || !responsable || !telefono || !direccion || !sacos){
-    alert("Completa todos los campos ❌"); return;
+    alert("Completa todos los campos ❌");
+    return;
   }
 
   if(!confirm("¿Confirmas que deseas enviar el pedido?")) return;
@@ -132,13 +175,6 @@ async function enviarWhats(){
   const total = sacos * PRECIO_SACO;
   const bolsas = sacos * 25;
   const fechaHora = obtenerFechaHora();
-
-  await window.addDoc(
-    window.collection(window.db,"pedidos"),
-    { negocio,responsable,telefono,direccion,
-      sacos:Number(sacos),bolsas,total,
-      fechaHora,estado:"pendiente",timestamp:new Date() }
-  );
 
   const mensaje =
 `🧂 SAL DEL SERI
@@ -151,9 +187,30 @@ async function enviarWhats(){
 🛍️ Bolsas: ${bolsas}
 💰 TOTAL: $${total} MXN`;
 
+  // 📲 WhatsApp (primero)
   WHATSAPP_NUMEROS.forEach(n=>{
-    window.open(`https://wa.me/${n}?text=${encodeURIComponent(mensaje)}`,"_blank");
+    window.open(
+      `https://wa.me/${n}?text=${encodeURIComponent(mensaje)}`,
+      "_blank"
+    );
   });
+
+  // 🔥 Firestore (después)
+  window.addDoc(
+    window.collection(window.db,"pedidos"),
+    {
+      negocio,
+      responsable,
+      telefono,
+      direccion,
+      sacos,
+      bolsas,
+      total,
+      fechaHora,
+      estado:"pendiente",
+      timestamp:new Date()
+    }
+  );
 }
 </script>
 
