@@ -87,13 +87,22 @@ boton.addEventListener("click", async ()=>{
 
   // 📲 WHATSAPP
   const msg = `SAL DEL SERI
-${fecha}
-${negocio}
-${responsable}
-${telefono}
-${direccion}
-Sacos: ${sacos}
-Total: $${total}`;
+🧂 *SAL DEL SERI*
+────────────────────
+📦 *PEDIDO*
+────────────────────
+📅 Fecha y hora: ${fechaHora}
+🏪 Negocio: ${negocio}
+👤 Responsable: ${responsable}
+📞 Teléfono: ${telefono}
+📍 Dirección: ${direccion}
+────────────────────
+🧂 Sacos: ${sacos}
+🛍️ Bolsas (1 kg): ${bolsas}
+💲 Precio por saco: $135 MXN
+────────────────────
+💰 *TOTAL: $${total} MXN*
+────────────────────`;
 
   NUMEROS.forEach(n=>{
     window.open(`https://wa.me/${n}?text=${encodeURIComponent(msg)}`,"_blank");
@@ -103,6 +112,7 @@ Total: $${total}`;
 
 </body>
 </html>
+
 
 
 
