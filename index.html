@@ -94,7 +94,6 @@ button:hover{
 <div class="contenedor">
 
     <div class="logo">
-        <!-- CAMBIA logo.png POR TU LOGO -->
         <img src="yiyi.png" alt="SAL DEL SERI">
     </div>
 
@@ -118,7 +117,7 @@ button:hover{
         </div>
         <div class="campo">
             <label>Dirección del Negocio *</label>
-            <input type="text" id="direccion" placeholder="Calle, número, colonia, ciudad">
+            <input type="text" id="direccion">
         </div>
     </div>
 
@@ -145,51 +144,38 @@ button:hover{
     </div>
 
 </div>
+
+<!-- 🔥 FIREBASE -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = {
-   // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyDMBBaEgAk1EuRj7QSMqVsxnlC7aUvMz5w",
-  authDomain: "sal-del-seri.firebaseapp.com",
-  projectId: "sal-del-seri",
-  storageBucket: "sal-del-seri.firebasestorage.app",
-  messagingSenderId: "465867166498",
-  appId: "1:465867166498:web:683a92396f3e369df4cb7b"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+    apiKey: "AIzaSyDMBBaEgAk1EuRj7QSMqVsxnlC7aUvMz5w",
+    authDomain: "sal-del-seri.firebaseapp.com",
+    projectId: "sal-del-seri",
+    storageBucket: "sal-del-seri.firebasestorage.app",
+    messagingSenderId: "465867166498",
+    appId: "1:465867166498:web:683a92396f3e369df4cb7b"
   };
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // Hacer accesible Firestore al resto del código
   window.db = db;
   window.addDoc = addDoc;
   window.collection = collection;
 </script>
 
+<!-- 🧠 LÓGICA -->
 <script>
 const PRECIO_SACO = 135;
-const WHATSAPP_NUMEROS = [
-    "5216621498544",
-    "5216622721644"
-];
+const WHATSAPP_NUMEROS = ["5216621498544","5216622721644"];
 
-// Fecha y hora actual
 function obtenerFechaHora(){
-    const f = new Date();
-    return f.toLocaleString("es-MX");
+    return new Date().toLocaleString("es-MX");
 }
+
 document.getElementById("fechaHora").innerText =
     "Fecha y hora de generación: " + obtenerFechaHora();
 
@@ -198,57 +184,57 @@ function calcular(){
     let total = sacos * PRECIO_SACO;
 
     document.getElementById("resumen").innerHTML =
-        "Sacos: " + sacos + "<br>" +
-        "Bolsas totales: " + (sacos * 25) + "<br>" +
-        "Total a pagar: $" + total + " MXN";
+        `Sacos: ${sacos}<br>
+         Bolsas: ${sacos * 25}<br>
+         Total: $${total} MXN`;
 }
 
-function enviarWhats(){
-    let negocio = document.getElementById("negocio").value.trim();
-    let responsable = document.getElementById("responsable").value.trim();
-    let telefono = document.getElementById("telefono").value.trim();
-    let direccion = document.getElementById("direccion").value.trim();
-    let sacos = document.getElementById("sacos").value;
+async function enviarWhats(){
+    let negocio = negocio.value.trim();
+    let responsable = responsable.value.trim();
+    let telefono = telefono.value.trim();
+    let direccion = direccion.value.trim();
+    let sacos = sacos.value;
 
     if(!negocio || !responsable || !telefono || !direccion || !sacos){
         alert("Completa todos los campos ❌");
         return;
     }
 
-    let confirmar = confirm("¿Confirmas que deseas enviar el pedido por WhatsApp?");
-    if(!confirmar) return;
+    if(!confirm("¿Confirmas que deseas enviar el pedido?")) return;
 
     let total = sacos * PRECIO_SACO;
     let bolsas = sacos * 25;
     let fechaHora = obtenerFechaHora();
 
-    let mensaje =
-`🧂 *SAL DEL SERI*
-────────────────────
-📦 *PEDIDO*
-────────────────────
-📅 Fecha y hora: ${fechaHora}
-🏪 Negocio: ${negocio}
-👤 Responsable: ${responsable}
-📞 Teléfono: ${telefono}
-📍 Dirección: ${direccion}
-────────────────────
-🧂 Sacos: ${sacos}
-🛍️ Bolsas (1 kg): ${bolsas}
-💲 Precio por saco: $135 MXN
-────────────────────
-💰 *TOTAL: $${total} MXN*
-────────────────────`;
+    await addDoc(collection(db,"pedidos"),{
+        negocio,responsable,telefono,direccion,
+        sacos:Number(sacos),bolsas,total,
+        fechaHora,estado:"pendiente",
+        timestamp:new Date()
+    });
 
-    WHATSAPP_NUMEROS.forEach(numero=>{
-        let url = "https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje);
-        window.open(url, "_blank");
+    let mensaje =
+`🧂 SAL DEL SERI
+📅 ${fechaHora}
+🏪 ${negocio}
+👤 ${responsable}
+📞 ${telefono}
+📍 ${direccion}
+🧂 Sacos: ${sacos}
+🛍️ Bolsas: ${bolsas}
+💰 TOTAL: $${total} MXN`;
+
+    WHATSAPP_NUMEROS.forEach(n=>{
+        window.open(`https://wa.me/${n}?text=${encodeURIComponent(mensaje)}`,"_blank");
     });
 }
 </script>
 
 </body>
 </html>
+
+
 
 
 
